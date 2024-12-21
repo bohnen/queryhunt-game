@@ -16,6 +16,30 @@ from sqlalchemy.exc import OperationalError
 from sqlglot import errors, parse_one
 
 
+def get_connection_string(database: str = "test", autocommit: bool = True) -> str:
+    """
+    Function that returns connection string to TiDB Serverless cluster.
+    :param: autocommit
+    :return: connection string
+    """
+    db_conf = {
+        "host": st.secrets['TIDB_HOST'],
+        "port": 4000,
+        "user": st.secrets['TIDB_USER'],
+        "password": st.secrets['TIDB_PASSWORD'],
+        "autocommit": autocommit,
+    }
+
+    if database:
+        db_conf["database"] = database
+
+    db_conf["ssl_verify_cert"] = True
+    db_conf["ssl_verify_identity"] = True
+    db_conf["ssl_ca"] = st.secrets["TIDB_CA"]
+
+    connection_string = f"mysql+pymysql://{db_conf['user']}:{db_conf['password']}@{db_conf['host']}:{db_conf['port']}/{database}?ssl_ca={db_conf['ssl_ca']}&ssl_verify_cert=true&ssl_verify_identity=true"
+    return connection_string
+
 def get_connection(database: str = None, autocommit: bool = True) -> Connection:
     """
     Function that returns connection object to TiDB Serverless cluster.
@@ -23,7 +47,7 @@ def get_connection(database: str = None, autocommit: bool = True) -> Connection:
     :return: pymysql connection
     """
     db_conf = {
-        "host": "gateway01.ap-northeast-1.prod.aws.tidbcloud.com",
+        "host": st.secrets['TIDB_HOST'],
         "port": 4000,
         "user": st.secrets['TIDB_USER'],
         "password": st.secrets['TIDB_PASSWORD'],
@@ -135,7 +159,7 @@ def get_vs_store(retries=3, delay=5):
     for attempt in range(retries):
         try:
             tidbvec = TiDBVectorStore(
-                connection_string=st.secrets["TIDB_CONNECTION_URL"],
+                connection_string=get_connection_string(st.secrets['TIDB_DATABASE']),
                 table_name=vs_table_name,
                 distance_strategy="cosine",
                 vector_dimension=1536,

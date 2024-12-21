@@ -12,11 +12,13 @@ from llama_index.core.vector_stores.types import (MetadataFilter,
 from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.tidbvector import TiDBVectorStore
 
+import utils.utils as utils
+
 vs_table_name = "vs_game_schema"
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 tidbvec = TiDBVectorStore(
-    connection_string=st.secrets["TIDB_CONNECTION_URL"],
+    connection_string=utils.get_connection_string(st.secrets["TIDB_DATABASE"]),
     table_name=vs_table_name,
     distance_strategy="cosine",
     vector_dimension=1536,

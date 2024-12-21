@@ -2,7 +2,7 @@
 
 # 🕵️‍♂️ QueryHunt - SQL Murder Mystery Game
 
-**QueryHunt** is an interactive SQL game that combines the excitement of a murder mystery with the power of AI. Inspired by the original SQL Murder Mystery, this project challenges players to solve a unique case by running SQL queries against AI-generated data. Built as a hackathon project for TiDB, QueryHunt showcases the capabilities of TiDB Serverless, GPT-4, and other modern technologies.
+**QueryHunt** is an interactive SQL game that combines the excitement of a murder mystery with the power of AI. Inspired by the original SQL Murder Mystery, this project challenges players to solve a unique case by running SQL queries against AI-generated data. Built as a hackathon project for TiDB, QueryHunt showcases the capabilities of TiDB Serverless, GPT-4, and other modern technologies.**
 
 ## Architecture
 
