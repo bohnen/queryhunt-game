@@ -1,20 +1,19 @@
-import sqlparse
-from pymysql import Connection
-from pymysql.cursors import DictCursor
-import pymysql
+import random
 import re
+import time
+
+import pymysql
+import sqlparse
+import streamlit as st
 from llama_index.core import VectorStoreIndex
+from llama_index.core.vector_stores.types import (MetadataFilter,
+                                                  MetadataFilters)
 from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.tidbvector import TiDBVectorStore
-from llama_index.core.vector_stores.types import (
-    MetadataFilter,
-    MetadataFilters,
-)
-from sqlglot import parse_one, errors
-import random
-import streamlit as st
+from pymysql import Connection
+from pymysql.cursors import DictCursor
 from sqlalchemy.exc import OperationalError
-import time
+from sqlglot import errors, parse_one
 
 
 def get_connection(database: str = None, autocommit: bool = True) -> Connection:
@@ -24,7 +23,7 @@ def get_connection(database: str = None, autocommit: bool = True) -> Connection:
     :return: pymysql connection
     """
     db_conf = {
-        "host": "gateway01.eu-central-1.prod.aws.tidbcloud.com",
+        "host": "gateway01.ap-northeast-1.prod.aws.tidbcloud.com",
         "port": 4000,
         "user": st.secrets['TIDB_USER'],
         "password": st.secrets['TIDB_PASSWORD'],
@@ -37,7 +36,7 @@ def get_connection(database: str = None, autocommit: bool = True) -> Connection:
 
     db_conf["ssl_verify_cert"] = True
     db_conf["ssl_verify_identity"] = True
-    db_conf["ssl_ca"] = "/etc/ssl/certs/ca-certificates.crt"
+    db_conf["ssl_ca"] = st.secrets["TIDB_CA"]
 
     return pymysql.connect(**db_conf)
 

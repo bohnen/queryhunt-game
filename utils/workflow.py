@@ -1,24 +1,19 @@
-import os
-from sqlglot import parse_one, errors
-import json
 import asyncio
-from pydantic import BaseModel, ValidationError, conlist
+import json
+import os
 import re
 import traceback
-from llama_index.llms.openai import OpenAI
-from llama_index.core.workflow import (
-    Event,
-    StartEvent,
-    StopEvent,
-    Workflow,
-    Context,
-    step,
-)
-import os
-import streamlit as st
-from utils.utils import (clean_string, is_valid_sql, is_non_destructive,
-                   get_vs_store, run_queries_in_schema, create_schema_and_tables)
 
+import streamlit as st
+from llama_index.core.workflow import (Context, Event, StartEvent, StopEvent,
+                                       Workflow, step)
+from llama_index.llms.openai import OpenAI
+from pydantic import BaseModel, ValidationError, conlist
+from sqlglot import errors, parse_one
+
+from utils.utils import (clean_string, create_schema_and_tables, get_vs_store,
+                         is_non_destructive, is_valid_sql,
+                         run_queries_in_schema)
 
 # Set your OpenAI API key
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
@@ -37,6 +32,7 @@ Description of tables (do not reveal admin-only Murderer table)
 The story will be presented to a player, so do not reveal the murderer or any hints.
 Do not include any sample SQL queries or tables, it will be done in the next step.
 The story should not be very long.
+キャラクターには架空の名前を必ず与え、ストーリーは日本語で返すこと
 """
 
 QUERY_PROMPT = """
@@ -126,7 +122,7 @@ query_engine = get_vs_store()
 class MysteryFlow(Workflow):
 
     # get unique user token from streamlit headers
-    user_token = st.context.headers["X-Streamlit-User"]
+    user_token = st.context.headers.get("X-Streamlit-User",st.secrets["USER_TOKEN"])
     
     max_retries: int = 3
 
@@ -134,7 +130,6 @@ class MysteryFlow(Workflow):
     async def generate_story(self, ctx: Context, ev: StartEvent) -> StoryEvent:
 
         response = query_engine.query(STORY_PROMPT)
-
         story_chunks = []
 
         # stream the response to the frontend
@@ -157,6 +152,7 @@ class MysteryFlow(Workflow):
 
         response = query_engine.query(prompt)
         #response = await self.llm.acomplete(prompt)
+        print(response)
         return CreateTablesEvent(output=str(response))
 
 

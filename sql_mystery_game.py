@@ -1,15 +1,19 @@
-import streamlit as st
-import pymysql
-from streamlit_ace import st_ace
-from utils.utils import get_connection, is_valid_query, get_vs_store, create_schema_and_tables, generate_username, run_queries_in_schema
-import pandas as pd
-from utils.workflow import run_workflow
 import asyncio
+import re
 import time
 from datetime import datetime
+
+import pandas as pd
+import pymysql
+import streamlit as st
 import streamlit.components.v1 as components
 from pymysql.err import ProgrammingError
-import re
+from streamlit_ace import st_ace
+
+from utils.utils import (create_schema_and_tables, generate_username,
+                         get_connection, get_vs_store, is_valid_query,
+                         run_queries_in_schema)
+from utils.workflow import run_workflow
 
 
 @st.fragment
@@ -155,7 +159,7 @@ def drop_temp_schema():
 
 
 def get_current_user():
-    user_token = st.context.headers["X-Streamlit-User"]
+    user_token = st.context.headers.get("X-Streamlit-User", st.secrets["USER_TOKEN"])
     
     if st.session_state.current_user is None:
         st.session_state.current_user = user_token
@@ -167,6 +171,7 @@ Your goal is to provide a useful hint to a user and point them in the right dire
 Use your knowledge of dbml game schema.
 Do not reveal the murderer.
 Keep the hint short.
+The hint should be in Japanese.
 
 In your hint, reference the game story:
 ---------------------
